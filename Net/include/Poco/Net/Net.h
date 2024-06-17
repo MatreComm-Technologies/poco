@@ -59,12 +59,13 @@
 #endif
 
 
-// Default to enabled IPv6 support if not explicitly disabled
-#if !defined(POCO_NET_NO_IPv6) && !defined (POCO_HAVE_IPv6)
-	#define POCO_HAVE_IPv6
-#elif defined(POCO_NET_NO_IPv6) && defined (POCO_HAVE_IPv6)
-	#undef POCO_HAVE_IPv6
-#endif // POCO_NET_NO_IPv6, POCO_HAVE_IPv6
+// // Default to enabled IPv6 support if not explicitly disabled
+// #if !defined(POCO_NET_NO_IPv6) && !defined (POCO_HAVE_IPv6)
+// 	#define POCO_HAVE_IPv6
+// #elif defined(POCO_NET_NO_IPv6) && defined (POCO_HAVE_IPv6)
+// 	#undef POCO_HAVE_IPv6
+// #endif // POCO_NET_NO_IPv6, POCO_HAVE_IPv6
+#define POCO_HAVE_IPv6
 
 
 // Default to enabled local socket support if not explicitly disabled
