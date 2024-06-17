@@ -22,7 +22,7 @@
 
 
 #define POCO_ENOERR 0
-
+#define POCO_HAVE_IPv6 1
 
 #if defined(POCO_OS_FAMILY_WINDOWS)
 	#include "Poco/UnWindows.h"
