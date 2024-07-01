@@ -87,7 +87,7 @@ public:
 		BUFFER_SIZE = 65536
 	};
 
-	RemoteUDPListener(Poco::NotificationQueue& queue, Poco::UInt16 port, bool reusePort, int buffer);
+	RemoteUDPListener(Poco::NotificationQueue& queue, Poco::UInt16 port, bool reusePort, int buffer,Poco::Net::IPAddress::Family family=Poco::Net::IPAddress::Family::IPv4);
 	~RemoteUDPListener();
 
 	void run();
@@ -97,12 +97,13 @@ private:
 	Poco::NotificationQueue& _queue;
 	DatagramSocket           _socket;
 	std::atomic<bool>        _stopped;
+	Poco::Net::IPAddress::Family	_family;
 };
 
 
-RemoteUDPListener::RemoteUDPListener(Poco::NotificationQueue& queue, Poco::UInt16 port, bool reusePort, int buffer):
+RemoteUDPListener::RemoteUDPListener(Poco::NotificationQueue& queue, Poco::UInt16 port, bool reusePort, int buffer, Poco::Net::IPAddress::Family family):
 	_queue(queue),
-	_socket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port), false, reusePort),
+	_socket(Poco::Net::SocketAddress(Poco::Net::IPAddress(family), port), false, reusePort),
 	_stopped(false)
 {
 	if (buffer > 0)
@@ -127,7 +128,7 @@ void RemoteUDPListener::run()
 		{
 			if (_socket.poll(waitTime, Socket::SELECT_READ))
 			{
-				Poco::Net::SocketAddress sourceAddress;
+				Poco::Net::SocketAddress sourceAddress(_family);
 				int n = _socket.receiveFrom(buffer.begin(), BUFFER_SIZE, sourceAddress);
 				if (n > 0)
 				{
@@ -530,6 +531,18 @@ RemoteSyslogListener::RemoteSyslogListener(Poco::UInt16 port):
 {
 }
 
+RemoteSyslogListener::RemoteSyslogListener(Poco::UInt16 port,bool ipv6):
+	_pListener(0),
+	_pParser(0),
+	_port(port),
+	_reusePort(false),
+	_threads(1),
+	_buffer(0),
+	_isIPv6(ipv6),
+	_family(Poco::Net::IPAddress::Family::IPv4)
+{
+}
+
 
 RemoteSyslogListener::RemoteSyslogListener(Poco::UInt16 port, int threads):
 	_pListener(0),
@@ -626,7 +639,9 @@ void RemoteSyslogListener::open()
 	_pParser = new SyslogParser(_queue, this);
 	if (_port > 0)
 	{
-		_pListener = new RemoteUDPListener(_queue, _port, _reusePort, _buffer);
+		if(_isIPv6)
+			_family = Poco::Net::IPAddress::Family::IPv6;
+		_pListener = new RemoteUDPListener(_queue, _port, _reusePort, _buffer,_family);
 	}
 	for (int i = 0; i < _threads; i++)
 	{

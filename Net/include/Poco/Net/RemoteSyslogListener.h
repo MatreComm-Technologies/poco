@@ -58,6 +58,8 @@ public:
 
 	RemoteSyslogListener(Poco::UInt16 port);
 		/// Creates the RemoteSyslogListener, listening on the given port number.
+		
+	RemoteSyslogListener(Poco::UInt16 port,bool ipv6=false);
 
 	RemoteSyslogListener(Poco::UInt16 port, int threads);
 		/// Creates the RemoteSyslogListener, listening on the given port number
@@ -128,6 +130,8 @@ private:
 	bool                    _reusePort;
 	int                     _threads;
 	int                     _buffer;
+	bool			_isIPv6;
+	Poco::Net::IPAddress::Family 			_family;
 };
 
 
